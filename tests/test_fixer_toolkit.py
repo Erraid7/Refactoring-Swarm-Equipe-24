@@ -104,11 +104,11 @@ def multiply(x, y):  # Fixed: spacing
         assert "def add_numbers(a, b):" in modified_content, "Fix not applied"
         print(f"  ✅ File content verified")
         
-        # # Restaurer le backup
-        # if backup_file.exists():
-        #     shutil.copy(backup_file, original_file)
-        #     backup_file.unlink()
-        #     print(f"  🔄 Original file restored")
+        # Restaurer le backup
+        if backup_file.exists():
+            shutil.copy(backup_file, original_file)
+            backup_file.unlink()
+            print(f"  🔄 Original file restored")
         
         print("\n✅ Fixer Toolkit: ALL TESTS PASSED")
         return True
