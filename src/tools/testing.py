@@ -5,6 +5,13 @@ Provides test execution capabilities using pytest.
 
 import subprocess
 import json
+import sys
+import tempfile
+from pathlib import Path
+# Add project root to Python path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
 from pathlib import Path
 from typing import Dict, List
 
@@ -52,15 +59,21 @@ def run_pytest(directory: str, timeout: int = 60) -> Dict:
         }
     
     try:
-        # Run pytest with JSON report
+        # Create a temporary file for JSON report
+        temp_dir = tempfile.gettempdir()
+        report_path = Path(temp_dir) / "pytest_report.json"
+        
+        # Run pytest with JSON report using python -m to ensure it uses the virtual environment
         result = subprocess.run(
             [
+                sys.executable,  # Use current Python interpreter
+                "-m",
                 "pytest",
                 str(directory),
                 "--tb=short",  # Short traceback format
                 "-v",  # Verbose
                 "--json-report",  # JSON output
-                "--json-report-file=/tmp/pytest_report.json"
+                f"--json-report-file={report_path}"
             ],
             capture_output=True,
             text=True,
@@ -68,10 +81,15 @@ def run_pytest(directory: str, timeout: int = 60) -> Dict:
         )
         
         # Try to load JSON report
-        report_path = Path("/tmp/pytest_report.json")
         if report_path.exists():
             with open(report_path, 'r') as f:
                 report = json.load(f)
+            
+            # Clean up the report file
+            try:
+                report_path.unlink()
+            except:
+                pass
             
             return _parse_pytest_json_report(report)
         else:
@@ -105,6 +123,8 @@ def _parse_pytest_json_report(report: Dict) -> Dict:
     """
     summary = report.get('summary', {})
     tests = report.get('tests', [])
+    collectors = report.get('collectors', [])
+    exitcode = report.get('exitcode', 0)
     
     passed_count = summary.get('passed', 0)
     failed_count = summary.get('failed', 0)
@@ -114,6 +134,15 @@ def _parse_pytest_json_report(report: Dict) -> Dict:
     failures = []
     errors = []
     
+    # Check for collection errors (e.g., syntax errors, import errors)
+    for collector in collectors:
+        if collector.get('outcome') == 'failed':
+            error_msg = collector.get('longrepr', 'Collection failed')
+            nodeid = collector.get('nodeid', 'unknown')
+            errors.append(f"Collection error in {nodeid}: {error_msg}")
+            error_count += 1
+    
+    # Check for test failures and errors
     for test in tests:
         if test.get('outcome') == 'failed':
             failures.append({
@@ -127,8 +156,11 @@ def _parse_pytest_json_report(report: Dict) -> Dict:
                 'message': str(test.get('setup', {}).get('longrepr', 'Setup error'))
             })
     
+    # If exitcode is non-zero, tests didn't pass
+    passed = (exitcode == 0 and failed_count == 0 and error_count == 0 and len(errors) == 0)
+    
     return {
-        'passed': failed_count == 0 and error_count == 0,
+        'passed': passed,
         'total': total,
         'passed_count': passed_count,
         'failed_count': failed_count,
@@ -156,21 +188,25 @@ def _parse_pytest_text_output(stdout: str, stderr: str, returncode: int) -> Dict
     # Look for summary line: "X passed, Y failed in Z seconds"
     passed_count = 0
     failed_count = 0
+    error_count = 0
     total = 0
     
+    import re
     for line in lines:
-        if 'passed' in line.lower() or 'failed' in line.lower():
+        if 'passed' in line.lower() or 'failed' in line.lower() or 'error' in line.lower():
             # Try to extract numbers
-            import re
             passed_match = re.search(r'(\d+) passed', line)
             failed_match = re.search(r'(\d+) failed', line)
+            error_match = re.search(r'(\d+) error', line)
             
             if passed_match:
                 passed_count = int(passed_match.group(1))
             if failed_match:
                 failed_count = int(failed_match.group(1))
+            if error_match:
+                error_count = int(error_match.group(1))
     
-    total = passed_count + failed_count
+    total = passed_count + failed_count + error_count
     
     # Extract failures
     failures = []
@@ -190,13 +226,41 @@ def _parse_pytest_text_output(stdout: str, stderr: str, returncode: int) -> Dict
             else:
                 current_failure['message'] += line + '\n'
     
+    # Extract errors (collection errors, syntax errors, etc.)
+    errors = []
+    in_error = False
+    current_error = ''
+    
+    for line in lines:
+        if 'ERROR' in line and ('collecting' in line.lower() or 'test_' in line):
+            in_error = True
+            current_error = line.strip() + '\n'
+        elif in_error:
+            if line.strip().startswith('=') or (line.strip().startswith('!') and 'Interrupted' in line):
+                if current_error:
+                    errors.append(current_error.strip())
+                in_error = False
+                current_error = ''
+            else:
+                current_error += line + '\n'
+    
+    # Check for SyntaxError specifically
+    full_output = stdout + '\n' + stderr
+    if 'SyntaxError' in full_output or 'IndentationError' in full_output:
+        if not errors:
+            errors.append('Syntax error detected in code')
+    
+    if stderr:
+        errors.append(stderr)
+    
     return {
-        'passed': returncode == 0,
+        'passed': returncode == 0 and error_count == 0,
         'total': total,
         'passed_count': passed_count,
         'failed_count': failed_count,
+        'error_count': error_count,
         'failures': failures,
-        'errors': [stderr] if stderr else [],
+        'errors': errors,
         'execution_time': 0.0
     }
 

@@ -95,7 +95,7 @@ def compare_quality(before_score: float, after_score: float) -> Dict:
     return {
         "improved": improvement > 0,
         "improvement": round(improvement, 2),
-        "improvement_percentage": round(improvement_percentage, 1),
+        "percentage": round(improvement_percentage, 1),
         "before": before_score,
         "after": after_score,
         "verdict": _get_verdict(improvement, after_score)
