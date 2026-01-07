@@ -5,6 +5,7 @@ Provides code quality analysis using Pylint.
 
 import subprocess
 import json
+import sys
 from pathlib import Path
 from typing import Dict, List
 
@@ -37,24 +38,33 @@ def run_pylint_analysis(filepath: str) -> Dict:
         raise ValueError(f"Not a Python file: {filepath}")
     
     try:
-        # Run pylint with JSON output
-        result = subprocess.run(
-            ["pylint", str(file_path), "--output-format=json"],
+        # Run pylint twice: once for JSON output (issues), once for score
+        # First run: Get detailed issues in JSON format
+        result_json = subprocess.run(
+            [sys.executable, "-m", "pylint", str(file_path), "--output-format=json"],
             capture_output=True,
             text=True,
             timeout=30
         )
         
-        # Parse JSON output
+        # Second run: Get the score from text output
+        result_score = subprocess.run(
+            [sys.executable, "-m", "pylint", str(file_path)],
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+        
+        # Parse JSON output for issues
         issues = []
-        if result.stdout:
+        if result_json.stdout:
             try:
-                issues = json.loads(result.stdout)
+                issues = json.loads(result_json.stdout)
             except json.JSONDecodeError:
                 issues = []
         
-        # Get score from stderr (pylint outputs score there)
-        score = _extract_score_from_output(result.stderr)
+        # Get score from the text output (stderr typically has the score line)
+        score = _extract_score_from_output(result_score.stdout + "\n" + result_score.stderr)
         
         # Categorize issues
         errors = [i for i in issues if i.get('type') == 'error']
