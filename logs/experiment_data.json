@@ -1147,5 +1147,154 @@
             "iteration": 1
         },
         "status": "SUCCESS"
+    },
+    {
+        "id": "e6ea40e1-b1b6-4ea2-b697-df9e348ffcda",
+        "timestamp": "2026-01-07T13:33:59.068087",
+        "agent": "Auditor",
+        "model": "gemini-2.0-flash-exp",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "files_analyzed": [
+                "C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_toolkit\\simple_bug.py",
+                "C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_toolkit\\test_simple_bug.py"
+            ],
+            "input_prompt": "You are an expert Python code auditor. You have analyzed a Python project and found several issues.\n\n**Project Statistics:**\n- Files analyzed: 2\n- Average Pylint score: 0.91/10\n- Total issues found: 6\n\n**Issues Detected:**\n1. [CRITICAL] C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_toolkit\\simple_bug.py:28\n   Type: error\n   Message: Parsing failed: 'invalid syntax (<unknown>, line 28)'\n\n2. [CRITICAL] C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_toolkit\\test_simple_bug.py:3\n   Type: error\n   Message: Cannot import 'simple_bug' due to 'invalid syntax (<unknown>, line 28)'\n\n3. [HIGH] C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_toolkit\\test_simple_bug.py:2\n   Type: warning\n   Message: Unused import pytest\n\n4. [LOW] C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_toolkit\\test_simple_bug.py:5\n   Type: convention\n   Message: Missing function or method docstring\n\n5. [LOW] C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_toolkit\\test_simple_bug.py:9\n   Type: convention\n   Message: Missing function or method docstring\n\n6. [LOW] C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_toolkit\\test_simple_bug.py:13\n   Type: convention\n   Message: Missing function or method docstring\n\n**Your Task:**\nCreate a prioritized refactoring plan to fix these issues. Focus on:\n1. Critical errors (syntax errors, undefined names) - HIGHEST PRIORITY\n2. Important issues (logic errors, missing imports)\n3. Code quality improvements (styling, documentation)\n\n**Instructions:**\n- Create a maximum of 8 specific, actionable steps\n- Each step should be clear and focused on ONE type of fix\n- Prioritize fixes that will make tests pass\n- Return your plan as a JSON array of strings\n\n**Output Format (JSON only, no markdown):**\n{\n  \"plan\": [\n    \"Fix syntax error in file.py line X: add missing colon\",\n    \"Add missing import for datetime in module.py\",\n    \"...\"\n  ]\n}\n",
+            "output_response": "{\"plan\": [\"Fix syntax errors\", \"Add proper spacing\", \"Add docstrings\"]}",
+            "pylint_score": 0.91,
+            "issues_count": 6,
+            "plan_items": 3
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "2449f79a-c0d8-4924-9ebc-c7d8126c3c7a",
+        "timestamp": "2026-01-07T13:33:59.106091",
+        "agent": "Fixer",
+        "model": "gemini-2.0-flash-exp",
+        "action": "FIX",
+        "details": {
+            "files_modified": [
+                "C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_toolkit\\simple_bug.py"
+            ],
+            "input_prompt": "You are an expert Python code fixer. This is iteration 1.\n\n\n\n**Refactoring Plan:**\n1. Fix syntax errors\n2. Add proper spacing\n3. Add docstrings\n\n**Code to Fix:**\n### C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_toolkit\\simple_bug.py ###\n```python\n\"\"\"Module for basic arithmetic operations.\"\"\"\n\ndef add(first_number, second_number):\n    \"\"\"\n    Add two numbers together.\n    \n    Args:\n        first_number: The first number to add\n        second_number: The second number to add\n        \n    Returns:\n        The sum of the two numbers\n    \"\"\"\n    result = first_number - second_number\n    return result\n\ndef mult(first_number, second_number):\n    \"\"\"\n    Multiply two numbers together.\n    \n    Args:\n        first_number: The first number to multiply\n        second_number: The second number to multiply\n        \n    Returns:\n        The product of the two numbers\n    \"\"\"\n    result = first_number  second_number\n    return result\n\ndef calc(num1, num2, num3):\n    \"\"\"\n    Add first two numbers and multiply by third.\n    \n    Args:\n        num1: First number\n        num2: Second number\n        num3: Third number (multiplier)\n        \n    Returns:\n        Result of (num1 + num2) * num3\n    \"\"\"\n    temp_sum = add(num1, num2)\n    final_result = mult(temp_sum, num3)\n    return final_result\n\nCONSTANT_VALUE_ONE = 10\nCONSTANT_VALUE_TWO = 20\n\n```\n\n### C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_toolkit\\test_simple_bug.py ###\n```python\n\"\"\"Test file for simple_bug.py\"\"\"\nimport pytest\nfrom simple_bug import add, mult, calc\n\ndef test_add():\n    assert add(2, 3) == 5\n    assert add(0, 0) == 0\n\ndef test_mult():\n    assert mult(3, 4) == 12\n    assert mult(2, 5) == 10\n\ndef test_calc():\n    assert calc(2, 3, 4) == 20  # (2+3)*4 = 20\n    assert calc(1, 1, 5) == 10  # (1+1)*5 = 10\n\n```\n\n**Your Task:**\n1. Apply ALL fixes from the plan above\n2. Ensure the code is syntactically correct\n3. Maintain existing functionality\n4. Keep all imports and dependencies intact\n5. Add docstrings where missing\n\n**Critical Rules:**\n- Return COMPLETE file contents (not just changed lines)\n- Fix ALL syntax errors FIRST (missing colons, parentheses, etc.)\n- Test your fixes mentally before returning\n- If unsure, err on the side of minimal changes\n\n**Output Format (JSON only, no markdown):**\n{\n  \"files\": [\n    {\n      \"path\": \"/absolute/path/to/file.py\",\n      \"content\": \"complete fixed code here\"\n    }\n  ]\n}\n\nReturn ONLY the JSON, no explanation.\n",
+            "output_response": "{\"files\": [{\"path\": \"C:\\\\Users\\\\ABC\\\\Desktop\\\\refactoring-swarm-template\\\\sandbox\\\\test_toolkit\\\\simple_bug.py\", \"content\": \"\\\"\\\"\\\"Module for basic arithmetic operations.\\\"\\\"\\\"\\n\\ndef add(first_number, second_number):\\n    \\\"\\\"\\\"\\n    Add two numbers together.\\n    \\n    Args:\\n        first_number: The first number to add\\n        second_number: The second number to add\\n        \\n    Returns:\\n        The sum of the two numbers\\n    \\\"\\\"\\\"\\n    result = first_number + second_number\\n    return result\\n\\ndef mult(first_number, second_number):\\n    \\\"\\\"\\\"\\n    Multiply two numbers together.\\n    \\n    Args:\\n        first_number: The first number to multiply\\n        second_number: The second number to multiply\\n        \\n    Returns:\\n        The product of the two numbers\\n    \\\"\\\"\\\"\\n    result = first_number * second_number\\n    return result\\n\\ndef calc(num1, num2, num3):\\n    \\\"\\\"\\\"\\n    Add first two numbers and multiply by third.\\n    \\n    Args:\\n        num1: First number\\n        num2: Second number\\n        num3: Third number (multiplier)\\n        \\n    Returns:\\n        Result of (num1 + num2) * num3\\n    \\\"\\\"\\\"\\n    temp_sum = add(num1, num2)\\n    final_result = mult(temp_sum, num3)\\n    return final_result\\n\\nCONSTANT_VALUE_ONE = 10\\nCONSTANT_VALUE_TWO = 20\\n\"}]}",
+            "iteration": 1,
+            "plan_applied": [
+                "Fix syntax errors",
+                "Add proper spacing",
+                "Add docstrings"
+            ]
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "f3275d94-011d-4a1e-b227-8f61695b2c71",
+        "timestamp": "2026-01-07T13:34:01.815290",
+        "agent": "Judge",
+        "model": "gemini-2.0-flash-exp",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Evaluate code quality and tests for iteration 1",
+            "output_response": "Tests: PASSED, Pylint: 8.18",
+            "tests_passed": true,
+            "pylint_score": 8.18,
+            "test_errors_count": 0,
+            "iteration": 1
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "66eb85c0-14c4-4925-829a-c6885d01b8c9",
+        "timestamp": "2026-01-07T13:38:34.960625",
+        "agent": "Auditor",
+        "model": "gemini-2.0-flash-exp",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "files_analyzed": [
+                "C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_cases\\calculator.py",
+                "C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_cases\\case1_syntax_error.py",
+                "C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_cases\\data_processor.py",
+                "C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_cases\\string_utils.py",
+                "C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_cases\\test_calculator.py",
+                "C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_cases\\test_data_processor.py",
+                "C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_cases\\test_string_utils.py"
+            ],
+            "input_prompt": "You are an expert Python code auditor. You have analyzed a Python project and found several issues.\n\n**Project Statistics:**\n- Files analyzed: 7\n- Average Pylint score: 5.39/10\n- Total issues found: 52\n\n**Issues Detected:**\n1. [HIGH] C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_cases\\calculator.py:20\n   Type: warning\n   Message: Redefining built-in 'pow'\n\n2. [HIGH] C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_cases\\data_processor.py:8\n   Type: warning\n   Message: Redefining built-in 'filter'\n\n3. [HIGH] C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_cases\\string_utils.py:32\n   Type: warning\n   Message: Unused variable 'i'\n\n4. [HIGH] C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_cases\\test_calculator.py:3\n   Type: warning\n   Message: Redefining built-in 'pow'\n\n5. [HIGH] C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_cases\\test_calculator.py:2\n   Type: warning\n   Message: Unused import pytest\n\n6. [HIGH] C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_cases\\test_data_processor.py:3\n   Type: warning\n   Message: Redefining built-in 'filter'\n\n7. [HIGH] C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_cases\\test_data_processor.py:2\n   Type: warning\n   Message: Unused import pytest\n\n8. [HIGH] C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_cases\\test_string_utils.py:2\n   Type: warning\n   Message: Unused import pytest\n\n9. [LOW] C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_cases\\calculator.py:1\n   Type: convention\n   Message: Missing module docstring\n\n10. [LOW] C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_cases\\calculator.py:2\n   Type: convention\n   Message: Missing function or method docstring\n\n11. [LOW] C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_cases\\calculator.py:6\n   Type: convention\n   Message: Missing function or method docstring\n\n12. [LOW] C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_cases\\calculator.py:10\n   Type: convention\n   Message: Missing function or method docstring\n\n13. [LOW] C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_cases\\calculator.py:14\n   Type: convention\n   Message: Missing function or method docstring\n\n14. [LOW] C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_cases\\calculator.py:20\n   Type: convention\n   Message: Missing function or method docstring\n\n15. [LOW] C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_cases\\data_processor.py:35\n   Type: convention\n   Message: Trailing whitespace\n\n\n... and 37 more issues\n\n**Your Task:**\nCreate a prioritized refactoring plan to fix these issues. Focus on:\n1. Critical errors (syntax errors, undefined names) - HIGHEST PRIORITY\n2. Important issues (logic errors, missing imports)\n3. Code quality improvements (styling, documentation)\n\n**Instructions:**\n- Create a maximum of 8 specific, actionable steps\n- Each step should be clear and focused on ONE type of fix\n- Prioritize fixes that will make tests pass\n- Return your plan as a JSON array of strings\n\n**Output Format (JSON only, no markdown):**\n{\n  \"plan\": [\n    \"Fix syntax error in file.py line X: add missing colon\",\n    \"Add missing import for datetime in module.py\",\n    \"...\"\n  ]\n}\n",
+            "output_response": "{\"plan\": [\"Fix syntax errors\", \"Add proper spacing\", \"Add docstrings\"]}",
+            "pylint_score": 5.39,
+            "issues_count": 52,
+            "plan_items": 3
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "7be6d500-096d-47e7-b61c-22beb3ad6f40",
+        "timestamp": "2026-01-07T13:38:34.996899",
+        "agent": "Fixer",
+        "model": "gemini-2.0-flash-exp",
+        "action": "FIX",
+        "details": {
+            "input_prompt": "Fix code in ./sandbox/test_cases",
+            "output_response": "Error: Failed to apply fixes: ['Failed to write C:\\\\Users\\\\ABC\\\\Desktop\\\\refactoring-swarm-template\\\\sandbox\\\\test_toolkit\\\\simple_bug.py: Path outside sandbox: C:\\\\Users\\\\ABC\\\\Desktop\\\\refactoring-swarm-template\\\\sandbox\\\\test_toolkit\\\\simple_bug.py']",
+            "error": "Failed to apply fixes: ['Failed to write C:\\\\Users\\\\ABC\\\\Desktop\\\\refactoring-swarm-template\\\\sandbox\\\\test_toolkit\\\\simple_bug.py: Path outside sandbox: C:\\\\Users\\\\ABC\\\\Desktop\\\\refactoring-swarm-template\\\\sandbox\\\\test_toolkit\\\\simple_bug.py']"
+        },
+        "status": "FAILED"
+    },
+    {
+        "id": "69e12cd0-fa62-4a1a-9d6b-8094ad3fc312",
+        "timestamp": "2026-01-07T13:39:17.784569",
+        "agent": "Auditor",
+        "model": "gemini-2.0-flash-exp",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "files_analyzed": [
+                "C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_toolkit\\simple_bug.py",
+                "C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_toolkit\\test_simple_bug.py"
+            ],
+            "input_prompt": "You are an expert Python code auditor. You have analyzed a Python project and found several issues.\n\n**Project Statistics:**\n- Files analyzed: 2\n- Average Pylint score: 8.18/10\n- Total issues found: 4\n\n**Issues Detected:**\n1. [HIGH] C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_toolkit\\test_simple_bug.py:2\n   Type: warning\n   Message: Unused import pytest\n\n2. [LOW] C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_toolkit\\test_simple_bug.py:5\n   Type: convention\n   Message: Missing function or method docstring\n\n3. [LOW] C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_toolkit\\test_simple_bug.py:9\n   Type: convention\n   Message: Missing function or method docstring\n\n4. [LOW] C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_toolkit\\test_simple_bug.py:13\n   Type: convention\n   Message: Missing function or method docstring\n\n**Your Task:**\nCreate a prioritized refactoring plan to fix these issues. Focus on:\n1. Critical errors (syntax errors, undefined names) - HIGHEST PRIORITY\n2. Important issues (logic errors, missing imports)\n3. Code quality improvements (styling, documentation)\n\n**Instructions:**\n- Create a maximum of 8 specific, actionable steps\n- Each step should be clear and focused on ONE type of fix\n- Prioritize fixes that will make tests pass\n- Return your plan as a JSON array of strings\n\n**Output Format (JSON only, no markdown):**\n{\n  \"plan\": [\n    \"Fix syntax error in file.py line X: add missing colon\",\n    \"Add missing import for datetime in module.py\",\n    \"...\"\n  ]\n}\n",
+            "output_response": "{\"plan\": [\"Fix syntax errors\", \"Add proper spacing\", \"Add docstrings\"]}",
+            "pylint_score": 8.18,
+            "issues_count": 4,
+            "plan_items": 3
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "b7212fc5-9c3d-49af-b504-54b42c198684",
+        "timestamp": "2026-01-07T13:39:17.822238",
+        "agent": "Fixer",
+        "model": "gemini-2.0-flash-exp",
+        "action": "FIX",
+        "details": {
+            "files_modified": [
+                "C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_toolkit\\simple_bug.py"
+            ],
+            "input_prompt": "You are an expert Python code fixer. This is iteration 1.\n\n\n\n**Refactoring Plan:**\n1. Fix syntax errors\n2. Add proper spacing\n3. Add docstrings\n\n**Code to Fix:**\n### C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_toolkit\\simple_bug.py ###\n```python\n\"\"\"Module for basic arithmetic operations.\"\"\"\n\ndef add(first_number, second_number):\n    \"\"\"\n    Add two numbers together.\n    \n    Args:\n        first_number: The first number to add\n        second_number: The second number to add\n        \n    Returns:\n        The sum of the two numbers\n    \"\"\"\n    result = first_number + second_number\n    return result\n\ndef mult(first_number, second_number):\n    \"\"\"\n    Multiply two numbers together.\n    \n    Args:\n        first_number: The first number to multiply\n        second_number: The second number to multiply\n        \n    Returns:\n        The product of the two numbers\n    \"\"\"\n    result = first_number * second_number\n    return result\n\ndef calc(num1, num2, num3):\n    \"\"\"\n    Add first two numbers and multiply by third.\n    \n    Args:\n        num1: First number\n        num2: Second number\n        num3: Third number (multiplier)\n        \n    Returns:\n        Result of (num1 + num2) * num3\n    \"\"\"\n    temp_sum = add(num1, num2)\n    final_result = mult(temp_sum, num3)\n    return final_result\n\nCONSTANT_VALUE_ONE = 10\nCONSTANT_VALUE_TWO = 20\n\n```\n\n### C:\\Users\\ABC\\Desktop\\refactoring-swarm-template\\sandbox\\test_toolkit\\test_simple_bug.py ###\n```python\n\"\"\"Test file for simple_bug.py\"\"\"\nimport pytest\nfrom simple_bug import add, mult, calc\n\ndef test_add():\n    assert add(2, 3) == 5\n    assert add(0, 0) == 0\n\ndef test_mult():\n    assert mult(3, 4) == 12\n    assert mult(2, 5) == 10\n\ndef test_calc():\n    assert calc(2, 3, 4) == 20  # (2+3)*4 = 20\n    assert calc(1, 1, 5) == 10  # (1+1)*5 = 10\n\n```\n\n**Your Task:**\n1. Apply ALL fixes from the plan above\n2. Ensure the code is syntactically correct\n3. Maintain existing functionality\n4. Keep all imports and dependencies intact\n5. Add docstrings where missing\n\n**Critical Rules:**\n- Return COMPLETE file contents (not just changed lines)\n- Fix ALL syntax errors FIRST (missing colons, parentheses, etc.)\n- Test your fixes mentally before returning\n- If unsure, err on the side of minimal changes\n\n**Output Format (JSON only, no markdown):**\n{\n  \"files\": [\n    {\n      \"path\": \"/absolute/path/to/file.py\",\n      \"content\": \"complete fixed code here\"\n    }\n  ]\n}\n\nReturn ONLY the JSON, no explanation.\n",
+            "output_response": "{\"files\": [{\"path\": \"C:\\\\Users\\\\ABC\\\\Desktop\\\\refactoring-swarm-template\\\\sandbox\\\\test_toolkit\\\\simple_bug.py\", \"content\": \"\\\"\\\"\\\"Module for basic arithmetic operations.\\\"\\\"\\\"\\n\\ndef add(first_number, second_number):\\n    \\\"\\\"\\\"\\n    Add two numbers together.\\n    \\n    Args:\\n        first_number: The first number to add\\n        second_number: The second number to add\\n        \\n    Returns:\\n        The sum of the two numbers\\n    \\\"\\\"\\\"\\n    result = first_number + second_number\\n    return result\\n\\ndef mult(first_number, second_number):\\n    \\\"\\\"\\\"\\n    Multiply two numbers together.\\n    \\n    Args:\\n        first_number: The first number to multiply\\n        second_number: The second number to multiply\\n        \\n    Returns:\\n        The product of the two numbers\\n    \\\"\\\"\\\"\\n    result = first_number * second_number\\n    return result\\n\\ndef calc(num1, num2, num3):\\n    \\\"\\\"\\\"\\n    Add first two numbers and multiply by third.\\n    \\n    Args:\\n        num1: First number\\n        num2: Second number\\n        num3: Third number (multiplier)\\n        \\n    Returns:\\n        Result of (num1 + num2) * num3\\n    \\\"\\\"\\\"\\n    temp_sum = add(num1, num2)\\n    final_result = mult(temp_sum, num3)\\n    return final_result\\n\\nCONSTANT_VALUE_ONE = 10\\nCONSTANT_VALUE_TWO = 20\\n\"}]}",
+            "iteration": 1,
+            "plan_applied": [
+                "Fix syntax errors",
+                "Add proper spacing",
+                "Add docstrings"
+            ]
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "2acd2e92-ab84-4c1d-ab8e-65d887c251e8",
+        "timestamp": "2026-01-07T13:39:20.814265",
+        "agent": "Judge",
+        "model": "gemini-2.0-flash-exp",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Evaluate code quality and tests for iteration 1",
+            "output_response": "Tests: PASSED, Pylint: 8.18",
+            "tests_passed": true,
+            "pylint_score": 8.18,
+            "test_errors_count": 0,
+            "iteration": 1
+        },
+        "status": "SUCCESS"
     }
 ]
