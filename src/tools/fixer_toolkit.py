@@ -60,7 +60,7 @@ def apply_fixes(fixed_files_data: Dict, target_dir: str) -> Dict:
     }
 
 
-def get_files_for_fixing(files_to_fix: List[str], target_dir: str) -> Dict[str, str]:
+def get_files_for_fixing(files_to_fix: List[str], target_dir: str) -> List[Dict[str, str]]:
     """
     Read multiple files and return their contents.
     Used by the Fixer to get the current code before fixing.
@@ -70,17 +70,23 @@ def get_files_for_fixing(files_to_fix: List[str], target_dir: str) -> Dict[str, 
         target_dir: Sandbox root directory
         
     Returns:
-        Dict mapping file paths to their contents
+        List of dicts with 'path' and 'content' keys
     """
-    file_contents = {}
+    file_contents = []
     
     for filepath in files_to_fix:
         try:
             content = read_file_safe(filepath, target_dir)
-            file_contents[filepath] = content
+            file_contents.append({
+                "path": filepath,
+                "content": content
+            })
         except Exception as e:
             print(f"⚠️  Failed to read {filepath}: {e}")
-            file_contents[filepath] = None
+            file_contents.append({
+                "path": filepath,
+                "content": None
+            })
     
     return file_contents
 
@@ -188,13 +194,13 @@ def validate_python_syntax(filepath: str, target_dir: str) -> Dict:
         }
 
 
-def format_files_for_llm(file_contents: Dict[str, str], max_lines_per_file: int = 100) -> str:
+def format_files_for_llm(file_contents: List[Dict[str, str]], max_lines_per_file: int = 100) -> str:
     """
     Format file contents for inclusion in LLM prompt.
     Truncates very long files to avoid token overflow.
     
     Args:
-        file_contents: Dict mapping file paths to contents
+        file_contents: List of dicts with 'path' and 'content' keys
         max_lines_per_file: Maximum lines to include per file
         
     Returns:
@@ -202,7 +208,10 @@ def format_files_for_llm(file_contents: Dict[str, str], max_lines_per_file: int 
     """
     formatted_parts = []
     
-    for filepath, content in file_contents.items():
+    for file_data in file_contents:
+        filepath = file_data['path']
+        content = file_data['content']
+        
         if content is None:
             formatted_parts.append(f"### {filepath} ###\n[ERROR: Could not read file]")
             continue
